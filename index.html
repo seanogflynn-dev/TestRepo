@@ -278,7 +278,7 @@ let photoDataUrl = '';
 
 // Points at the Cloudflare Worker proxy that holds the Anthropic API key server-side.
 // See worker/README.md for how to deploy the proxy and fill this in.
-const ANTHROPIC_PROXY_URL = "https://REPLACE-WITH-YOUR-WORKER.workers.dev/v1/messages";
+const ANTHROPIC_PROXY_URL = "https://job-sourcer-proxy.seanogflynn.workers.dev/v1/messages";
 
 if(window.pdfjsLib){
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.7.570/pdf.worker.min.js';
