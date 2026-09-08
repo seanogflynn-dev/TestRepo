@@ -69,14 +69,14 @@ GitHub Pages will pick up the change automatically.
   link, score }] }`, requires header `X-Ingest-Secret: <INGEST_SECRET>`.
   Called by the daily job-search Routine after it scores new roles.
   Duplicate roles (same company + role + link) are silently skipped.
-- `POST /v1/roles/search-now` — no body needed. Called by the app's "Run
-  search now" button. Runs a real live web search directly from the Worker
-  using Gemini's Google Search grounding tool (still free-tier), scores
-  results the same way as the daily Routine, and merges new ones into the
-  tracker. It can't click-through-verify links or generate CV/cover-letter
-  `.docx` packs the way the full scheduled Routine can (those need an actual
-  agent session's browser/file tools) — it's a lighter, always-available
-  sibling for "show me something new right now."
+
+The app's "Run search now" button doesn't call the Worker at all — it copies
+a prompt ("Fire my \"Daily Partner Success job search\" Routine now.") for
+you to paste into a Claude Code / Cowork chat. The real job search needs an
+authenticated agent session (web browsing, link verification, `.docx`
+generation), and firing it that way draws on your existing plan's usage
+instead of the separately-metered Anthropic API — there's no way to trigger
+it for free from a plain webpage button.
 
 ## Notes
 
