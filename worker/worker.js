@@ -34,10 +34,17 @@ async function getCandidateModels(apiKey) {
     return ["gemini-flash-latest"];
   }
   const data = await res.json();
+  // Several models technically support the generateContent method but only
+  // for non-text output (TTS, image/video generation, transcription, etc.)
+  // or are specialized/preview products unrelated to chat completion - they
+  // 400 on a plain text request. Exclude those by name.
+  const NON_TEXT_PATTERN =
+    /-tts|-image|-audio|transcribe|robotics|computer-use|customtools|antigravity|deep-research|-clip|lyria|nano-banana|-omni|omni-/i;
   const models = (data.models || [])
     .filter((m) => (m.supportedGenerationMethods || []).includes("generateContent"))
     .map((m) => (m.name || "").replace(/^models\//, ""))
-    .filter(Boolean);
+    .filter(Boolean)
+    .filter((m) => !NON_TEXT_PATTERN.test(m));
 
   // Prefer fast "flash" models (cheaper/faster, better free-tier quota),
   // then anything else that supports generateContent.
@@ -120,7 +127,11 @@ export default {
       upstreamJson = await upstream.json();
       attemptsLog.push({ model, status: upstream.status });
       if (upstream.ok) break;
-      if (upstream.status !== 503 && upstream.status !== 404) break;
+      // Keep trying other candidates on: overloaded (503), retired (404), or
+      // a bad-request that's actually a wrong-modality rejection (400) -
+      // a genuine 400 (e.g. malformed body) will just repeat down the list
+      // and surface the last model's error, which is still informative.
+      if (upstream.status !== 503 && upstream.status !== 404 && upstream.status !== 400) break;
     }
 
     if (!upstream.ok) {
