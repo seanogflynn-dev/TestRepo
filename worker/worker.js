@@ -49,7 +49,7 @@ export default {
       generationConfig: { maxOutputTokens: clientRequest.max_tokens || 2048 },
     };
     if (clientRequest.system) {
-      geminiRequest.system_instruction = { parts: [{ text: clientRequest.system }] };
+      geminiRequest.systemInstruction = { parts: [{ text: clientRequest.system }] };
     }
 
     const upstream = await fetch(
