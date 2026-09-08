@@ -11,6 +11,45 @@
 
 const ALLOWED_ORIGIN = "https://seanogflynn-dev.github.io";
 
+// Google periodically retires specific dated/aliased model names (we've hit
+// this twice: gemini-2.5-flash and gemini-2.0-flash both went away). Rather
+// than hardcode names that keep expiring, ask Gemini's own API which models
+// currently exist and support generateContent, and cache the answer for a
+// while so we're not calling ListModels on every request.
+let cachedModelList = null;
+let cachedModelListAt = 0;
+const MODEL_LIST_CACHE_MS = 30 * 60 * 1000;
+
+async function getCandidateModels(apiKey) {
+  const now = Date.now();
+  if (cachedModelList && now - cachedModelListAt < MODEL_LIST_CACHE_MS) {
+    return cachedModelList;
+  }
+
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`
+  );
+  if (!res.ok) {
+    // Fall back to a best-guess name if we can't even list models.
+    return ["gemini-flash-latest"];
+  }
+  const data = await res.json();
+  const models = (data.models || [])
+    .filter((m) => (m.supportedGenerationMethods || []).includes("generateContent"))
+    .map((m) => (m.name || "").replace(/^models\//, ""))
+    .filter(Boolean);
+
+  // Prefer fast "flash" models (cheaper/faster, better free-tier quota),
+  // then anything else that supports generateContent.
+  const flash = models.filter((m) => m.includes("flash") && !m.includes("thinking"));
+  const rest = models.filter((m) => !flash.includes(m));
+  const ordered = [...flash, ...rest];
+
+  cachedModelList = ordered.length ? ordered : ["gemini-flash-latest"];
+  cachedModelListAt = now;
+  return cachedModelList;
+}
+
 export default {
   async fetch(request, env) {
     if (request.method === "OPTIONS") {
@@ -51,9 +90,16 @@ export default {
       geminiRequest.systemInstruction = { parts: [{ text: clientRequest.system }] };
     }
 
-    // The free tier occasionally returns 503 "model overloaded" on the primary
-    // model. Retry once, then fall back to a second model, before giving up.
-    const modelsToTry = [clientRequest.model || "gemini-flash-latest", "gemini-2.0-flash"];
+    // Models get retired or briefly overloaded on the free tier. Fetch the
+    // current list of models Google actually supports (cached), try a
+    // client-requested model first if given, then fall through the list -
+    // retrying an overloaded (503) model briefly, and moving straight past a
+    // retired (404) one.
+    const discovered = await getCandidateModels(env.GEMINI_API_KEY);
+    const modelsToTry = clientRequest.model
+      ? [clientRequest.model, ...discovered.filter((m) => m !== clientRequest.model)]
+      : discovered;
+
     let upstream, upstreamJson;
 
     for (let i = 0; i < modelsToTry.length; i++) {
@@ -71,7 +117,8 @@ export default {
         await new Promise((resolve) => setTimeout(resolve, 500 * (attempt + 1)));
       }
       upstreamJson = await upstream.json();
-      if (upstream.ok || upstream.status !== 503) break;
+      if (upstream.ok) break;
+      if (upstream.status !== 503 && upstream.status !== 404) break;
     }
 
     if (!upstream.ok) {
