@@ -1,15 +1,177 @@
-// Cloudflare Worker: proxies POST /v1/messages to Google's Gemini API (which
-// has a free tier), attaching a server-side API key (set via
-// `wrangler secret put GEMINI_API_KEY`) so the key never has to live in the
-// browser. Restricts CORS to ALLOWED_ORIGIN so other sites can't ride on your
-// API quota.
+// Cloudflare Worker: two jobs.
 //
-// The client sends an Anthropic-Messages-shaped body ({ model, max_tokens,
-// system, messages }) and this worker translates it to/from Gemini's API
-// shape, so index.html doesn't need to know which provider is behind this
-// endpoint.
+// 1. Proxies POST /v1/messages to Google's Gemini API (which has a free
+//    tier), attaching a server-side API key (set via
+//    `wrangler secret put GEMINI_API_KEY`) so the key never has to live in
+//    the browser. The client sends an Anthropic-Messages-shaped body
+//    ({ model, max_tokens, system, messages }) and this worker translates
+//    it to/from Gemini's API shape, so index.html doesn't need to know
+//    which provider is behind this endpoint.
+//
+// 2. Stores the daily job-search shortlist in Workers KV (binding
+//    ROLES_KV) so it can be written by the scheduled Routine (server-side,
+//    via POST /v1/roles/ingest, protected by an INGEST_SECRET) and read/
+//    updated by the browser (GET /v1/roles, POST /v1/roles/decision) -
+//    letting the app show "today's roles" on load and track Yes/No/Applied
+//    decisions across devices, since localStorage alone can't bridge a
+//    server-side Routine and a static site.
+//
+// CORS is restricted to ALLOWED_ORIGIN throughout so other sites can't ride
+// on your API quota or read/write your roles data from a browser.
 
 const ALLOWED_ORIGIN = "https://seanogflynn-dev.github.io";
+const ROLES_KEY = "roles";
+
+export default {
+  async fetch(request, env) {
+    if (request.method === "OPTIONS") {
+      return new Response(null, { headers: corsHeaders(request) });
+    }
+
+    const url = new URL(request.url);
+
+    if (url.pathname === "/v1/messages") return handleMessages(request, env);
+    if (url.pathname === "/v1/roles") return handleGetRoles(request, env);
+    if (url.pathname === "/v1/roles/decision") return handleDecision(request, env);
+    if (url.pathname === "/v1/roles/ingest") return handleIngest(request, env);
+
+    return new Response("Not found", { status: 404, headers: corsHeaders(request) });
+  },
+};
+
+function jsonResponse(request, body, status) {
+  return new Response(JSON.stringify(body), {
+    status: status || 200,
+    headers: { "Content-Type": "application/json", ...corsHeaders(request) },
+  });
+}
+
+function corsHeaders(request) {
+  const origin = request.headers.get("Origin");
+  const headers = {
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, X-Ingest-Secret",
+  };
+  if (origin === ALLOWED_ORIGIN) {
+    headers["Access-Control-Allow-Origin"] = origin;
+  }
+  return headers;
+}
+
+async function roleId(company, role, link) {
+  const data = new TextEncoder().encode(`${company}::${role}::${link}`);
+  const digest = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(digest))
+    .slice(0, 8)
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function loadRoles(env) {
+  if (!env.ROLES_KV) return [];
+  const raw = await env.ROLES_KV.get(ROLES_KEY);
+  if (!raw) return [];
+  try {
+    return JSON.parse(raw);
+  } catch (e) {
+    return [];
+  }
+}
+
+async function saveRoles(env, roles) {
+  await env.ROLES_KV.put(ROLES_KEY, JSON.stringify(roles));
+}
+
+// ---- GET /v1/roles — the app loads this on open ----
+async function handleGetRoles(request, env) {
+  if (request.method !== "GET") {
+    return jsonResponse(request, { error: "Method not allowed" }, 405);
+  }
+  const roles = await loadRoles(env);
+  roles.sort((a, b) => (b.addedAt || "").localeCompare(a.addedAt || ""));
+  return jsonResponse(request, { roles });
+}
+
+// ---- POST /v1/roles/decision — the app writes Yes/No/Applied here ----
+async function handleDecision(request, env) {
+  if (request.method !== "POST") {
+    return jsonResponse(request, { error: "Method not allowed" }, 405);
+  }
+  let body;
+  try {
+    body = JSON.parse(await request.text());
+  } catch (e) {
+    return jsonResponse(request, { error: "Invalid JSON body" }, 400);
+  }
+  const { id, status } = body || {};
+  const allowed = ["pending", "yes", "no", "applied"];
+  if (!id || !allowed.includes(status)) {
+    return jsonResponse(request, { error: "Expected { id, status } with status one of " + allowed.join("/") }, 400);
+  }
+
+  const roles = await loadRoles(env);
+  const role = roles.find((r) => r.id === id);
+  if (!role) {
+    return jsonResponse(request, { error: "No role with that id" }, 404);
+  }
+  role.status = status;
+  if (status === "applied" && !role.appliedAt) {
+    role.appliedAt = new Date().toISOString();
+  }
+  if (status !== "applied") {
+    role.appliedAt = null;
+  }
+  await saveRoles(env, roles);
+  return jsonResponse(request, { role });
+}
+
+// ---- POST /v1/roles/ingest — the daily Routine writes here ----
+async function handleIngest(request, env) {
+  if (request.method !== "POST") {
+    return jsonResponse(request, { error: "Method not allowed" }, 405);
+  }
+  if (!env.INGEST_SECRET || request.headers.get("X-Ingest-Secret") !== env.INGEST_SECRET) {
+    return jsonResponse(request, { error: "Unauthorized" }, 401);
+  }
+  let body;
+  try {
+    body = JSON.parse(await request.text());
+  } catch (e) {
+    return jsonResponse(request, { error: "Invalid JSON body" }, 400);
+  }
+  const incoming = Array.isArray(body.roles) ? body.roles : [];
+
+  const roles = await loadRoles(env);
+  const existingIds = new Set(roles.map((r) => r.id));
+  let added = 0;
+
+  for (const r of incoming) {
+    const company = (r.company || "").trim();
+    const roleName = (r.role || "").trim();
+    const link = (r.link || "").trim();
+    if (!company || !roleName) continue;
+    const id = await roleId(company, roleName, link);
+    if (existingIds.has(id)) continue;
+    roles.push({
+      id,
+      company,
+      role: roleName,
+      rationale: r.rationale || "",
+      link,
+      score: r.score ?? null,
+      status: "pending",
+      addedAt: new Date().toISOString(),
+      appliedAt: null,
+    });
+    existingIds.add(id);
+    added++;
+  }
+
+  await saveRoles(env, roles);
+  return jsonResponse(request, { added, total: roles.length });
+}
+
+// ---- POST /v1/messages — Gemini proxy (unchanged behavior) ----
 
 // Google periodically retires specific dated/aliased model names (we've hit
 // this twice: gemini-2.5-flash and gemini-2.0-flash both went away). Rather
@@ -57,117 +219,82 @@ async function getCandidateModels(apiKey) {
   return cachedModelList;
 }
 
-export default {
-  async fetch(request, env) {
-    if (request.method === "OPTIONS") {
-      return new Response(null, { headers: corsHeaders(request) });
-    }
+async function handleMessages(request, env) {
+  if (request.method !== "POST") {
+    return new Response("Method not allowed", { status: 405, headers: corsHeaders(request) });
+  }
+  if (!env.GEMINI_API_KEY) {
+    return jsonResponse(request, { error: "Server is missing GEMINI_API_KEY" }, 500);
+  }
 
-    const url = new URL(request.url);
-    if (url.pathname !== "/v1/messages") {
-      return new Response("Not found", { status: 404, headers: corsHeaders(request) });
-    }
-    if (request.method !== "POST") {
-      return new Response("Method not allowed", { status: 405, headers: corsHeaders(request) });
-    }
-    if (!env.GEMINI_API_KEY) {
-      return new Response(
-        JSON.stringify({ error: "Server is missing GEMINI_API_KEY" }),
-        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders(request) } }
-      );
-    }
+  let clientRequest;
+  try {
+    clientRequest = JSON.parse(await request.text());
+  } catch (e) {
+    return jsonResponse(request, { error: "Invalid JSON body" }, 400);
+  }
 
-    let clientRequest;
-    try {
-      clientRequest = JSON.parse(await request.text());
-    } catch (e) {
-      return new Response(
-        JSON.stringify({ error: "Invalid JSON body" }),
-        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders(request) } }
-      );
-    }
+  const userMessage = (clientRequest.messages || []).find((m) => m.role === "user");
 
-    const userMessage = (clientRequest.messages || []).find((m) => m.role === "user");
+  const geminiRequest = {
+    contents: [{ role: "user", parts: [{ text: userMessage ? userMessage.content : "" }] }],
+    generationConfig: { maxOutputTokens: clientRequest.max_tokens || 2048 },
+  };
+  if (clientRequest.system) {
+    geminiRequest.systemInstruction = { parts: [{ text: clientRequest.system }] };
+  }
 
-    const geminiRequest = {
-      contents: [{ role: "user", parts: [{ text: userMessage ? userMessage.content : "" }] }],
-      generationConfig: { maxOutputTokens: clientRequest.max_tokens || 2048 },
-    };
-    if (clientRequest.system) {
-      geminiRequest.systemInstruction = { parts: [{ text: clientRequest.system }] };
-    }
+  // Models get retired or briefly overloaded on the free tier. Fetch the
+  // current list of models Google actually supports (cached), try a
+  // client-requested model first if given, then fall through the list -
+  // retrying an overloaded (503) model briefly, and moving straight past a
+  // retired (404) one.
+  const discovered = await getCandidateModels(env.GEMINI_API_KEY);
+  const modelsToTry = clientRequest.model
+    ? [clientRequest.model, ...discovered.filter((m) => m !== clientRequest.model)]
+    : discovered;
 
-    // Models get retired or briefly overloaded on the free tier. Fetch the
-    // current list of models Google actually supports (cached), try a
-    // client-requested model first if given, then fall through the list -
-    // retrying an overloaded (503) model briefly, and moving straight past a
-    // retired (404) one.
-    const discovered = await getCandidateModels(env.GEMINI_API_KEY);
-    const modelsToTry = clientRequest.model
-      ? [clientRequest.model, ...discovered.filter((m) => m !== clientRequest.model)]
-      : discovered;
+  let upstream, upstreamJson;
+  const attemptsLog = [];
 
-    let upstream, upstreamJson;
-    const attemptsLog = [];
-
-    for (let i = 0; i < modelsToTry.length; i++) {
-      const model = modelsToTry[i];
-      for (let attempt = 0; attempt < 2; attempt++) {
-        upstream = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${env.GEMINI_API_KEY}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(geminiRequest),
-          }
-        );
-        if (upstream.status !== 503) break;
-        await new Promise((resolve) => setTimeout(resolve, 500 * (attempt + 1)));
-      }
-      upstreamJson = await upstream.json();
-      attemptsLog.push({ model, status: upstream.status });
-      if (upstream.ok) break;
-      // Keep trying other candidates on: overloaded (503), retired (404), or
-      // a bad-request that's actually a wrong-modality rejection (400) -
-      // a genuine 400 (e.g. malformed body) will just repeat down the list
-      // and surface the last model's error, which is still informative.
-      if (upstream.status !== 503 && upstream.status !== 404 && upstream.status !== 400) break;
-    }
-
-    if (!upstream.ok) {
-      // Forward Gemini's error as-is, plus which models we tried, so it's
-      // visible in the browser's network tab for debugging.
-      return new Response(
-        JSON.stringify({ ...upstreamJson, _debug_attempts: attemptsLog, _debug_candidates: modelsToTry }),
+  for (let i = 0; i < modelsToTry.length; i++) {
+    const model = modelsToTry[i];
+    for (let attempt = 0; attempt < 2; attempt++) {
+      upstream = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${env.GEMINI_API_KEY}`,
         {
-          status: upstream.status,
-          headers: { "Content-Type": "application/json", ...corsHeaders(request) },
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(geminiRequest),
         }
       );
+      if (upstream.status !== 503) break;
+      await new Promise((resolve) => setTimeout(resolve, 500 * (attempt + 1)));
     }
-
-    const text = (upstreamJson.candidates?.[0]?.content?.parts || [])
-      .map((p) => p.text || "")
-      .join("");
-
-    // Re-shape into the Anthropic-Messages response shape index.html expects.
-    const anthropicShaped = { content: [{ type: "text", text }] };
-
-    return new Response(JSON.stringify(anthropicShaped), {
-      status: 200,
-      headers: { "Content-Type": "application/json", ...corsHeaders(request) },
-    });
-  },
-};
-
-function corsHeaders(request) {
-  const origin = request.headers.get("Origin");
-  const headers = {
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
-  };
-  if (origin === ALLOWED_ORIGIN) {
-    headers["Access-Control-Allow-Origin"] = origin;
+    upstreamJson = await upstream.json();
+    attemptsLog.push({ model, status: upstream.status });
+    if (upstream.ok) break;
+    // Keep trying other candidates on: overloaded (503), retired (404), or
+    // a bad-request that's actually a wrong-modality rejection (400) -
+    // a genuine 400 (e.g. malformed body) will just repeat down the list
+    // and surface the last model's error, which is still informative.
+    if (upstream.status !== 503 && upstream.status !== 404 && upstream.status !== 400) break;
   }
-  return headers;
+
+  if (!upstream.ok) {
+    // Forward Gemini's error as-is, plus which models we tried, so it's
+    // visible in the browser's network tab for debugging.
+    return jsonResponse(
+      request,
+      { ...upstreamJson, _debug_attempts: attemptsLog, _debug_candidates: modelsToTry },
+      upstream.status
+    );
+  }
+
+  const text = (upstreamJson.candidates?.[0]?.content?.parts || [])
+    .map((p) => p.text || "")
+    .join("");
+
+  // Re-shape into the Anthropic-Messages response shape index.html expects.
+  return jsonResponse(request, { content: [{ type: "text", text }] });
 }
