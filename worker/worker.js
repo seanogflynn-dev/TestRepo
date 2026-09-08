@@ -101,6 +101,7 @@ export default {
       : discovered;
 
     let upstream, upstreamJson;
+    const attemptsLog = [];
 
     for (let i = 0; i < modelsToTry.length; i++) {
       const model = modelsToTry[i];
@@ -117,16 +118,21 @@ export default {
         await new Promise((resolve) => setTimeout(resolve, 500 * (attempt + 1)));
       }
       upstreamJson = await upstream.json();
+      attemptsLog.push({ model, status: upstream.status });
       if (upstream.ok) break;
       if (upstream.status !== 503 && upstream.status !== 404) break;
     }
 
     if (!upstream.ok) {
-      // Forward Gemini's error as-is so it's visible in the browser's network tab.
-      return new Response(JSON.stringify(upstreamJson), {
-        status: upstream.status,
-        headers: { "Content-Type": "application/json", ...corsHeaders(request) },
-      });
+      // Forward Gemini's error as-is, plus which models we tried, so it's
+      // visible in the browser's network tab for debugging.
+      return new Response(
+        JSON.stringify({ ...upstreamJson, _debug_attempts: attemptsLog, _debug_candidates: modelsToTry }),
+        {
+          status: upstream.status,
+          headers: { "Content-Type": "application/json", ...corsHeaders(request) },
+        }
+      );
     }
 
     const text = (upstreamJson.candidates?.[0]?.content?.parts || [])
