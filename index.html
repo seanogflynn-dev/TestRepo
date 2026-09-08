@@ -112,48 +112,38 @@
   .url-row input{flex:1;}
   .url-row button{white-space:nowrap;}
 
-  .doc.cv-doc{white-space:normal;text-align:left;display:block;padding:38px 44px;position:relative;overflow:hidden;}
+  .doc.cv-doc{white-space:normal;text-align:left;display:block;padding:38px 44px;font-family:'Inter',Helvetica,Arial,sans-serif;}
 
-  .cvt-bg{position:absolute;pointer-events:none;z-index:0;opacity:0.35;}
-  .cvt-bg.top{top:-50px;right:-70px;width:320px;height:320px;}
-  .cvt-bg.bottom{bottom:-90px;right:-110px;width:420px;height:420px;opacity:0.22;}
+  .cvt-header{margin-bottom:18px;}
+  .cvt-name{font-family:'Inter',Helvetica,Arial,sans-serif;font-weight:700;font-size:29px;color:#1B3F72;margin:0 0 3px;letter-spacing:0;}
+  .cvt-title{font-size:14px;font-weight:600;color:#1B3F72;margin:0 0 8px;}
+  .cvt-contact{font-size:11.5px;color:#6B7280;}
+  .cvt-contact span{margin-right:14px;}
 
-  .cvt-header{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:20px;}
-  .cvt-name{font-family:'Source Serif 4',serif;font-weight:700;font-size:25px;color:#1B3F72;margin:0 0 2px;letter-spacing:0.005em;}
-  .cvt-title{font-size:13.5px;font-weight:600;color:#3E7CB8;margin:0 0 9px;}
-  .cvt-contact{display:flex;gap:16px;flex-wrap:wrap;font-size:11px;color:#5B6570;}
-  .cvt-contact span{display:inline-flex;align-items:center;gap:5px;}
-  .cvt-contact svg{width:12px;height:12px;flex-shrink:0;color:#3E7CB8;}
-  .cvt-photo{width:74px;height:74px;border-radius:50%;object-fit:cover;border:2px solid #EDEFF2;flex-shrink:0;}
-  .cvt-avatar{width:74px;height:74px;border-radius:50%;background:#1B3F72;color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;font-family:'Source Serif 4',serif;flex-shrink:0;}
+  .cvt-section{margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid #D9DCE1;}
+  .cvt-section:last-child{border-bottom:none;}
+  .cvt-h2{font-family:'Inter',Helvetica,Arial,sans-serif;font-size:15px;font-weight:700;color:#1B3F72;letter-spacing:0.01em;margin:0 0 10px;}
+  .cvt-summary{font-size:13px;line-height:1.5;color:#333333;margin:0;}
 
-  .cvt-section{position:relative;z-index:1;margin-bottom:18px;}
-  .cvt-h2{font-family:'Inter',sans-serif;font-size:13px;font-weight:700;color:#1B3F72;letter-spacing:0.02em;margin:0 0 10px;}
-  .cvt-summary{font-size:12px;line-height:1.6;color:#3A3F45;margin:0;}
+  .cvt-ach{margin-bottom:8px;}
+  .cvt-ach:last-child{margin-bottom:0;}
+  .cvt-ach-title{font-size:13px;font-weight:700;color:#333333;margin:0 0 2px;}
+  .cvt-ach-desc{font-size:12px;color:#333333;line-height:1.45;margin:0;}
 
-  .cvt-achievements{display:grid;grid-template-columns:1fr 1fr;gap:12px 22px;}
-  .cvt-ach{display:flex;gap:8px;align-items:flex-start;}
-  .cvt-ach-icon{width:14px;height:14px;margin-top:2px;flex-shrink:0;color:#6FA8DC;}
-  .cvt-ach-title{font-size:12px;font-weight:700;color:#3E7CB8;margin:0 0 2px;}
-  .cvt-ach-desc{font-size:11px;color:#5B6570;line-height:1.45;margin:0;}
+  .cvt-entry{margin-bottom:14px;}
+  .cvt-entry:last-child{margin-bottom:0;}
+  .cvt-entry-head{font-size:13px;color:#333333;margin:0 0 2px;}
+  .cvt-role{font-weight:700;}
+  .cvt-company{font-weight:700;}
+  .cvt-entry-meta{font-size:11.5px;color:#6B7280;margin:0 0 6px;}
+  .cvt-entry ul{margin:0;padding-left:16px;}
+  .cvt-entry li{font-size:12.5px;color:#333333;line-height:1.5;margin-bottom:3px;}
+  .cvt-edu-result{font-size:12px;color:#6B7280;margin-top:3px;}
 
-  .cvt-entry{display:grid;grid-template-columns:112px 1fr;gap:14px;margin-bottom:14px;}
-  .cvt-entry-date{font-size:11.5px;font-weight:700;color:#1B3F72;}
-  .cvt-entry-loc{font-size:10.5px;color:#8A929B;margin-top:2px;}
-  .cvt-entry-body{border-left:2px solid #E3E7EC;padding-left:15px;position:relative;}
-  .cvt-entry-body::before{content:'';position:absolute;left:-5px;top:3px;width:8px;height:8px;border-radius:50%;background:#3E7CB8;}
-  .cvt-role{font-size:13px;font-weight:700;color:#2D6CB4;margin:0 0 1px;}
-  .cvt-company{font-size:11.5px;font-weight:700;color:#6FA8DC;margin:0 0 5px;}
-  .cvt-entry-body ul{margin:0;padding-left:15px;}
-  .cvt-entry-body li{font-size:11px;color:#3A3F45;line-height:1.5;margin-bottom:3px;}
-  .cvt-edu-result{font-size:11px;color:#5B6570;margin-top:3px;}
+  .cvt-skills{font-size:12.5px;color:#333333;line-height:1.6;}
+  .cvt-skill{font-weight:700;}
 
-  .cvt-skills{display:flex;flex-wrap:wrap;gap:10px 16px;}
-  .cvt-skill{font-size:11.5px;font-weight:700;color:#2C3540;border-bottom:2px solid #DCE3EA;padding-bottom:4px;}
-
-  .cvt-interests{display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;}
-  .cvt-int{display:flex;align-items:center;gap:8px;font-size:11.5px;font-weight:700;color:#2D6CB4;}
-  .cvt-int svg{width:13px;height:13px;color:#6FA8DC;flex-shrink:0;}
+  .cvt-interests{font-size:12.5px;color:#333333;line-height:1.6;}
 
   .shortlist-item{border:1px solid var(--line);border-radius:2px;padding:11px 13px;margin-bottom:9px;background:#fff;}
   .shortlist-item .sl-title{font-weight:600;font-size:13px;margin:0 0 3px;color:var(--ink);}
@@ -193,13 +183,6 @@
 
       <label for="contactInfo">Contact details (optional)</label>
       <input type="text" id="contactInfo" placeholder="email · phone · location · LinkedIn">
-
-      <label for="photoFile">Headshot photo (optional)</label>
-      <input type="file" id="photoFile" accept="image/*">
-      <div class="upload-status" id="photoStatus" style="display:flex;align-items:center;gap:8px;">
-        <span id="photoPreviewWrap" style="display:none;"><img id="photoPreview" alt="" style="width:30px;height:30px;border-radius:50%;object-fit:cover;vertical-align:middle;"></span>
-        <span id="photoStatusText">Used in the Full CV header, to match your original layout.</span>
-      </div>
 
       <div class="savebar">
         <span class="dot" id="saveDot"></span>
@@ -266,7 +249,6 @@ const $ = id => document.getElementById(id);
 const baseCv = $('baseCv'), nameInput = $('name'), contactInfo = $('contactInfo'), jobTitle = $('jobTitle'), jobDesc = $('jobDesc');
 const shortlistInput = $('shortlistInput'), parseShortlistBtn = $('parseShortlistBtn'), shortlistStatus = $('shortlistStatus'), shortlistResults = $('shortlistResults');
 const cvFile = $('cvFile'), uploadStatus = $('uploadStatus');
-const photoFile = $('photoFile'), photoPreview = $('photoPreview'), photoPreviewWrap = $('photoPreviewWrap'), photoStatusText = $('photoStatusText');
 const saveDot = $('saveDot'), saveText = $('saveText');
 const generateBtn = $('generateBtn'), clearJobBtn = $('clearJobBtn');
 const errorBox = $('errorBox');
@@ -274,7 +256,6 @@ const toolbar = $('toolbar'), copyBtn = $('copyBtn'), regenBtn = $('regenBtn');
 const wordBtn = $('wordBtn'), pdfBtn = $('pdfBtn');
 const toast = $('toast');
 const TAB_KEYS = ['letter','cv','fullcv','notes'];
-let photoDataUrl = '';
 
 // Points at the Cloudflare Worker proxy that holds the Gemini API key server-side.
 // See worker/README.md for how to deploy the proxy and fill this in.
@@ -308,11 +289,6 @@ async function loadProfile(){
       baseCv.value = data.baseCv || '';
       nameInput.value = data.name || '';
       contactInfo.value = data.contactInfo || '';
-      photoDataUrl = data.photoDataUrl || '';
-      if(photoDataUrl){
-        photoPreview.src = photoDataUrl;
-        photoPreviewWrap.style.display = 'inline';
-      }
     }
   }catch(e){ /* no saved profile yet */ }
 }
@@ -322,7 +298,7 @@ function queueSave(){
   saveTimer = setTimeout(async ()=>{
     try{
       await storage.set('profile', JSON.stringify({
-        baseCv: baseCv.value, name: nameInput.value, contactInfo: contactInfo.value, photoDataUrl
+        baseCv: baseCv.value, name: nameInput.value, contactInfo: contactInfo.value
       }));
       saveDot.classList.add('show');
       saveText.textContent = 'Saved.';
@@ -336,34 +312,6 @@ baseCv.addEventListener('input', queueSave);
 nameInput.addEventListener('input', queueSave);
 contactInfo.addEventListener('input', queueSave);
 loadProfile();
-
-// ---- Headshot photo upload (resized/cropped client-side, stored as a small JPEG data URL) ----
-function handlePhotoUpload(file){
-  if(!file) return;
-  photoStatusText.textContent = 'Processing photo…';
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const img = new Image();
-    img.onload = () => {
-      const size = Math.min(img.width, img.height);
-      const sx = (img.width - size) / 2, sy = (img.height - size) / 2;
-      const canvas = document.createElement('canvas');
-      canvas.width = 300; canvas.height = 300;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, sx, sy, size, size, 0, 0, 300, 300);
-      photoDataUrl = canvas.toDataURL('image/jpeg', 0.85);
-      photoPreview.src = photoDataUrl;
-      photoPreviewWrap.style.display = 'inline';
-      photoStatusText.textContent = 'Photo added — used in the Full CV header.';
-      queueSave();
-    };
-    img.onerror = () => { photoStatusText.textContent = 'Could not read that image file.'; };
-    img.src = e.target.result;
-  };
-  reader.onerror = () => { photoStatusText.textContent = 'Could not read that image file.'; };
-  reader.readAsDataURL(file);
-}
-photoFile.addEventListener('change', (e) => handlePhotoUpload(e.target.files[0]));
 
 // ---- CV file upload ----
 async function extractPdfText(arrayBuffer){
@@ -595,62 +543,23 @@ ${jobDesc.value.trim()}`;
 }
 
 // ---- Full CV visual template ----
-const ICON_PHONE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>';
-const ICON_MAIL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg>';
-const ICON_LINK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
-const ICON_GEM = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 3 9l9 13 9-13z"/></svg>';
-const ICON_STAR = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.6 7.1.7-5.4 4.7 1.6 7-6.2-3.8L5.8 21l1.6-7-5.4-4.7 7.1-.7z"/></svg>';
-const INTEREST_ICONS = [
-  [/cycl|bike/i, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zM12 17.5V14l-3-3 4-3 2 3h2"/></svg>'],
-  [/football|soccer/i, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8l3 2-1 3h-4l-1-3z"/></svg>'],
-  [/golf/i, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 21V4l9 3-6 3"/><circle cx="6" cy="21" r="1.4" fill="currentColor" stroke="none"/></svg>'],
-  [/travel|flight/i, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 16l20-8-8 20-2-8z"/></svg>'],
-  [/run/i, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="14" cy="4.5" r="1.6" fill="currentColor" stroke="none"/><path d="M6 20l4-5 3 2 3-6 4 3M6 12l4-2 2-4"/></svg>'],
-  [/read|book/i, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v18H6.5A2.5 2.5 0 0 0 4 22z"/><path d="M4 4.5A2.5 2.5 0 0 0 6.5 7H20"/></svg>'],
-  [/music|guitar/i, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>'],
-  [/photo/i, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>'],
-  [/hik|mountain/i, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21l4-13 3 6 2-2 3 9zM3 21l5-9 3 5"/></svg>'],
-  [/swim/i, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18c1.5 1 3 1 4.5 0s3-1 4.5 0 3 1 4.5 0 3-1 4.5 0M6 14l10-8 4 4-3 3"/></svg>'],
-  [/gym|fitness|weight/i, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M4 8v8M20 8v8M8 6v12M16 6v12"/></svg>'],
-  [/cook|food/i, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10a9 5 0 0 1 18 0z"/><path d="M3 10h18M12 2v3"/></svg>'],
-  [/garden|plant/i, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12M12 12C7 12 4 9 4 4c5 0 8 3 8 8zM12 12c5 0 8-3 8-8-5 0-8 3-8 8z"/></svg>']
-];
-function interestIcon(label){
-  const hit = INTEREST_ICONS.find(([re]) => re.test(label));
-  return hit ? hit[1] : ICON_STAR;
-}
-
-function cvInitials(name){
-  const parts = (name || '').trim().split(/\s+/).filter(Boolean);
-  if(!parts.length) return '?';
-  return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
-}
-
+// Exec-CV formatting rules: sans-serif throughout, navy/charcoal/grey palette,
+// bold restricted to job titles/company names, single-column flow with plain
+// horizontal rules between sections (no tables, columns, icons, or photos) so
+// the layout stays simple for both human skimming and ATS parsing.
 function renderCvTemplate(data){
   const d = data || {};
   const contact = d.contact || {};
   let html = '';
 
-  html += `<svg class="cvt-bg top" viewBox="0 0 200 200"><g fill="none" stroke="#C9D6E5" stroke-width="1">${
-    Array.from({length: 9}).map((_, i) => `<circle cx="150" cy="40" r="${20 + i * 14}"/>`).join('')
-  }</g></svg>`;
-  html += `<svg class="cvt-bg bottom" viewBox="0 0 200 200"><g fill="none" stroke="#C9D6E5" stroke-width="1">${
-    Array.from({length: 9}).map((_, i) => `<circle cx="150" cy="150" r="${20 + i * 14}"/>`).join('')
-  }</g></svg>`;
-
   html += `<div class="cvt-header">
-    <div>
-      <div class="cvt-name">${escapeHtml(d.name || '')}</div>
-      ${d.title ? `<div class="cvt-title">${escapeHtml(d.title)}</div>` : ''}
-      <div class="cvt-contact">
-        ${contact.phone ? `<span>${ICON_PHONE}${escapeHtml(contact.phone)}</span>` : ''}
-        ${contact.email ? `<span>${ICON_MAIL}${escapeHtml(contact.email)}</span>` : ''}
-        ${contact.link ? `<span>${ICON_LINK}${escapeHtml(contact.link)}</span>` : ''}
-      </div>
+    <div class="cvt-name">${escapeHtml(d.name || '')}</div>
+    ${d.title ? `<div class="cvt-title">${escapeHtml(d.title)}</div>` : ''}
+    <div class="cvt-contact">
+      ${contact.phone ? `<span>${escapeHtml(contact.phone)}</span>` : ''}
+      ${contact.email ? `<span>${escapeHtml(contact.email)}</span>` : ''}
+      ${contact.link ? `<span>${escapeHtml(contact.link)}</span>` : ''}
     </div>
-    ${photoDataUrl
-      ? `<img class="cvt-photo" src="${photoDataUrl}" alt="">`
-      : `<div class="cvt-avatar">${escapeHtml(cvInitials(d.name))}</div>`}
   </div>`;
 
   if(d.summary){
@@ -658,23 +567,20 @@ function renderCvTemplate(data){
   }
 
   if(Array.isArray(d.achievements) && d.achievements.length){
-    html += `<div class="cvt-section"><div class="cvt-h2">Key Achievements</div><div class="cvt-achievements">`;
+    html += `<div class="cvt-section"><div class="cvt-h2">Key Achievements</div>`;
     d.achievements.forEach(a => {
-      html += `<div class="cvt-ach"><div class="cvt-ach-icon">${ICON_GEM}</div><div><div class="cvt-ach-title">${escapeHtml(a.title || '')}</div><p class="cvt-ach-desc">${escapeHtml(a.description || '')}</p></div></div>`;
+      html += `<div class="cvt-ach"><div class="cvt-ach-title">${escapeHtml(a.title || '')}</div><p class="cvt-ach-desc">${escapeHtml(a.description || '')}</p></div>`;
     });
-    html += `</div></div>`;
+    html += `</div>`;
   }
 
   if(Array.isArray(d.experience) && d.experience.length){
     html += `<div class="cvt-section"><div class="cvt-h2">Experience</div>`;
     d.experience.forEach(e => {
       html += `<div class="cvt-entry">
-        <div><div class="cvt-entry-date">${escapeHtml(e.dateRange || '')}</div>${e.location ? `<div class="cvt-entry-loc">${escapeHtml(e.location)}</div>` : ''}</div>
-        <div class="cvt-entry-body">
-          <div class="cvt-role">${escapeHtml(e.jobTitle || '')}</div>
-          ${e.company ? `<div class="cvt-company">${escapeHtml(e.company)}</div>` : ''}
-          ${(e.bullets && e.bullets.length) ? `<ul>${e.bullets.map(b => `<li>${escapeHtml(b)}</li>`).join('')}</ul>` : ''}
-        </div>
+        <div class="cvt-entry-head"><span class="cvt-role">${escapeHtml(e.jobTitle || '')}</span>${e.company ? ` — <span class="cvt-company">${escapeHtml(e.company)}</span>` : ''}</div>
+        <div class="cvt-entry-meta">${[e.dateRange, e.location].filter(Boolean).map(escapeHtml).join(' | ')}</div>
+        ${(e.bullets && e.bullets.length) ? `<ul>${e.bullets.map(b => `<li>${escapeHtml(b)}</li>`).join('')}</ul>` : ''}
       </div>`;
     });
     html += `</div>`;
@@ -684,27 +590,24 @@ function renderCvTemplate(data){
     html += `<div class="cvt-section"><div class="cvt-h2">Education</div>`;
     d.education.forEach(e => {
       html += `<div class="cvt-entry">
-        <div><div class="cvt-entry-date">${escapeHtml(e.dateRange || '')}</div>${e.location ? `<div class="cvt-entry-loc">${escapeHtml(e.location)}</div>` : ''}</div>
-        <div class="cvt-entry-body">
-          <div class="cvt-role">${escapeHtml(e.degree || '')}</div>
-          ${e.institution ? `<div class="cvt-company">${escapeHtml(e.institution)}</div>` : ''}
-          ${e.resultLine ? `<div class="cvt-edu-result">${escapeHtml(e.resultLine)}</div>` : ''}
-        </div>
+        <div class="cvt-entry-head"><span class="cvt-role">${escapeHtml(e.degree || '')}</span>${e.institution ? ` — <span class="cvt-company">${escapeHtml(e.institution)}</span>` : ''}</div>
+        <div class="cvt-entry-meta">${[e.dateRange, e.location].filter(Boolean).map(escapeHtml).join(' | ')}</div>
+        ${e.resultLine ? `<div class="cvt-edu-result">${escapeHtml(e.resultLine)}</div>` : ''}
       </div>`;
     });
     html += `</div>`;
   }
 
   if(Array.isArray(d.skills) && d.skills.length){
-    html += `<div class="cvt-section"><div class="cvt-h2">Skills</div><div class="cvt-skills">${
-      d.skills.map(s => `<span class="cvt-skill">${escapeHtml(s)}</span>`).join('')
-    }</div></div>`;
+    html += `<div class="cvt-section"><div class="cvt-h2">Skills</div><p class="cvt-skills">${
+      d.skills.map(s => `<span class="cvt-skill">${escapeHtml(s)}</span>`).join(', ')
+    }</p></div>`;
   }
 
   if(Array.isArray(d.interests) && d.interests.length){
-    html += `<div class="cvt-section"><div class="cvt-h2">Interests</div><div class="cvt-interests">${
-      d.interests.map(i => `<div class="cvt-int">${interestIcon(i)}${escapeHtml(i)}</div>`).join('')
-    }</div></div>`;
+    html += `<div class="cvt-section"><div class="cvt-h2">Interests</div><p class="cvt-interests">${
+      d.interests.map(escapeHtml).join(', ')
+    }</p></div>`;
   }
 
   return html;
@@ -817,54 +720,48 @@ copyBtn.addEventListener('click', ()=>{
 function buildCvWordHtml(d){
   d = d || {};
   const c = d.contact || {};
+  const NAVY = '#1B3F72', CHARCOAL = '#333333', GREY = '#6B7280';
   const contactLine = [c.phone, c.email, c.link].filter(Boolean).map(escapeHtml).join(' &nbsp;|&nbsp; ');
-  let body = `<h1 style="color:#1B3F72;font-size:20pt;margin:0 0 2pt 0;">${escapeHtml(d.name || '')}</h1>`;
-  if(d.title) body += `<p style="color:#3E7CB8;font-weight:bold;font-size:12pt;margin:0 0 6pt 0;">${escapeHtml(d.title)}</p>`;
-  if(contactLine) body += `<p style="color:#5B6570;font-size:9.5pt;margin:0 0 14pt 0;">${contactLine}</p>`;
+  let body = `<h1 style="color:${NAVY};font-size:22pt;margin:0 0 3pt 0;">${escapeHtml(d.name || '')}</h1>`;
+  if(d.title) body += `<p style="color:${NAVY};font-weight:bold;font-size:12pt;margin:0 0 6pt 0;">${escapeHtml(d.title)}</p>`;
+  if(contactLine) body += `<p style="color:${GREY};font-size:9.5pt;margin:0 0 14pt 0;">${contactLine}</p>`;
 
-  const heading = (t) => `<h2 style="color:#1B3F72;font-size:12pt;margin:14pt 0 6pt 0;">${escapeHtml(t)}</h2>`;
-  const row = (dateHtml, bodyHtml) => `<table style="width:100%;border-collapse:collapse;margin-bottom:8pt;"><tr>
-    <td style="width:110px;vertical-align:top;padding-right:10pt;">${dateHtml}</td>
-    <td style="vertical-align:top;border-left:2pt solid #E3E7EC;padding-left:10pt;">${bodyHtml}</td>
-  </tr></table>`;
+  const heading = (t) => `<h2 style="color:${NAVY};font-size:12pt;margin:14pt 0 8pt 0;border-bottom:1pt solid #D9DCE1;padding-bottom:4pt;">${escapeHtml(t)}</h2>`;
 
-  if(d.summary) body += heading('Summary') + `<p style="font-size:10.5pt;line-height:1.5;margin:0 0 8pt 0;">${escapeHtml(d.summary)}</p>`;
+  if(d.summary) body += heading('Summary') + `<p style="font-size:9.5pt;line-height:14pt;color:${CHARCOAL};margin:0 0 8pt 0;">${escapeHtml(d.summary)}</p>`;
 
   if(d.achievements && d.achievements.length){
     body += heading('Key Achievements');
-    body += '<table style="width:100%;border-collapse:collapse;"><tr>';
-    d.achievements.forEach((a, i) => {
-      body += `<td style="width:50%;vertical-align:top;padding:0 8pt 8pt 0;"><b style="color:#3E7CB8;">${escapeHtml(a.title || '')}</b><br><span style="font-size:10pt;color:#5B6570;">${escapeHtml(a.description || '')}</span></td>`;
-      if(i % 2 === 1 && i < d.achievements.length - 1) body += '</tr><tr>';
+    d.achievements.forEach(a => {
+      body += `<p style="font-size:9.5pt;line-height:14pt;color:${CHARCOAL};margin:0 0 8pt 0;"><b>${escapeHtml(a.title || '')}</b><br>${escapeHtml(a.description || '')}</p>`;
     });
-    body += '</tr></table>';
   }
 
   if(d.experience && d.experience.length){
     body += heading('Experience');
     d.experience.forEach(e => {
-      const dateHtml = `<b style="color:#1B3F72;font-size:10pt;">${escapeHtml(e.dateRange || '')}</b>${e.location ? `<br><span style="color:#8A929B;font-size:9pt;">${escapeHtml(e.location)}</span>` : ''}`;
-      const bullets = (e.bullets || []).map(b => `<li style="font-size:10pt;margin-bottom:3pt;">${escapeHtml(b)}</li>`).join('');
-      const bodyHtml = `<b style="color:#2D6CB4;font-size:11pt;">${escapeHtml(e.jobTitle || '')}</b>${e.company ? `<br><b style="color:#6FA8DC;font-size:10pt;">${escapeHtml(e.company)}</b>` : ''}${bullets ? `<ul style="margin:4pt 0 0 14pt;padding:0;">${bullets}</ul>` : ''}`;
-      body += row(dateHtml, bodyHtml);
+      const bullets = (e.bullets || []).map(b => `<li style="font-size:9.5pt;line-height:14pt;color:${CHARCOAL};margin-bottom:3pt;">${escapeHtml(b)}</li>`).join('');
+      body += `<p style="font-size:9.5pt;line-height:14pt;margin:0 0 2pt 0;color:${CHARCOAL};"><b>${escapeHtml(e.jobTitle || '')}</b>${e.company ? ` — <b>${escapeHtml(e.company)}</b>` : ''}</p>`;
+      body += `<p style="font-size:9pt;color:${GREY};margin:0 0 6pt 0;">${[e.dateRange, e.location].filter(Boolean).map(escapeHtml).join(' | ')}</p>`;
+      if(bullets) body += `<ul style="margin:0 0 8pt 0;padding-left:16pt;">${bullets}</ul>`;
     });
   }
 
   if(d.education && d.education.length){
     body += heading('Education');
     d.education.forEach(e => {
-      const dateHtml = `<b style="color:#1B3F72;font-size:10pt;">${escapeHtml(e.dateRange || '')}</b>${e.location ? `<br><span style="color:#8A929B;font-size:9pt;">${escapeHtml(e.location)}</span>` : ''}`;
-      const bodyHtml = `<b style="color:#2D6CB4;font-size:11pt;">${escapeHtml(e.degree || '')}</b>${e.institution ? `<br><b style="color:#6FA8DC;font-size:10pt;">${escapeHtml(e.institution)}</b>` : ''}${e.resultLine ? `<br><span style="font-size:9.5pt;color:#5B6570;">${escapeHtml(e.resultLine)}</span>` : ''}`;
-      body += row(dateHtml, bodyHtml);
+      body += `<p style="font-size:9.5pt;line-height:14pt;margin:0 0 2pt 0;color:${CHARCOAL};"><b>${escapeHtml(e.degree || '')}</b>${e.institution ? ` — <b>${escapeHtml(e.institution)}</b>` : ''}</p>`;
+      body += `<p style="font-size:9pt;color:${GREY};margin:0 0 4pt 0;">${[e.dateRange, e.location].filter(Boolean).map(escapeHtml).join(' | ')}</p>`;
+      if(e.resultLine) body += `<p style="font-size:9pt;color:${GREY};margin:0 0 8pt 0;">${escapeHtml(e.resultLine)}</p>`;
     });
   }
 
   if(d.skills && d.skills.length){
-    body += heading('Skills') + `<p style="font-size:10pt;">${d.skills.map(s => `<span style="text-decoration:underline;margin-right:16pt;font-weight:bold;">${escapeHtml(s)}</span>`).join('')}</p>`;
+    body += heading('Skills') + `<p style="font-size:9.5pt;color:${CHARCOAL};margin:0 0 8pt 0;">${d.skills.map(s => `<b>${escapeHtml(s)}</b>`).join(', ')}</p>`;
   }
 
   if(d.interests && d.interests.length){
-    body += heading('Interests') + `<p style="font-size:10pt;color:#2D6CB4;font-weight:bold;">${d.interests.map(escapeHtml).join(' &nbsp;·&nbsp; ')}</p>`;
+    body += heading('Interests') + `<p style="font-size:9.5pt;color:${CHARCOAL};margin:0;">${d.interests.map(escapeHtml).join(', ')}</p>`;
   }
 
   return body;
@@ -880,7 +777,7 @@ wordBtn.addEventListener('click', ()=>{
     let styleBlock = `body{font-family:Calibri, Arial, sans-serif; font-size:11pt; line-height:1.5; color:#1C1B19;} p{margin:0 0 10pt 0;}`;
     if(activeTab === 'fullcv'){
       bodyHtml = buildCvWordHtml(raw);
-      styleBlock = `body{font-family:Calibri, Arial, sans-serif; color:#1C1B19;} h1,h2{font-family:Calibri, Arial, sans-serif;}`;
+      styleBlock = `body{font-family:Helvetica, Arial, sans-serif;} h1,h2{font-family:Helvetica, Arial, sans-serif;}`;
     } else {
       bodyHtml = (raw || '').split('\n').map(line =>
         line.trim() === '' ? '<p>&nbsp;</p>' : `<p>${escapeHtml(line)}</p>`
@@ -903,170 +800,110 @@ function renderCvTemplateToPdf(doc, d, pageWidth, pageHeight){
   const c = d.contact || {};
   const marginX = 50, marginTop = 56, marginBottom = 50;
   const maxWidth = pageWidth - marginX * 2;
-  const navy = [27, 63, 114], blue = [45, 108, 180], lightBlue = [111, 168, 220], gray = [90, 100, 112], dark = [40, 45, 50];
+  const LEADING = 14;
+  const navy = [27, 63, 114], grey = [107, 114, 128], charcoal = [51, 51, 51];
   let y = marginTop;
-  function ensure(lh){ if(y > pageHeight - marginBottom){ doc.addPage(); y = marginTop; } }
-  function text(t, size, style, color, x, w){
-    doc.setFont('times', style || 'normal');
+  function ensure(){ if(y > pageHeight - marginBottom){ doc.addPage(); y = marginTop; } }
+  function text(t, size, style, color, leading){
+    doc.setFont('helvetica', style || 'normal');
     doc.setFontSize(size);
     doc.setTextColor(color[0], color[1], color[2]);
-    const wrapped = doc.splitTextToSize(t, w || maxWidth);
-    wrapped.forEach(line => { ensure(size * 1.3); doc.text(line, x || marginX, y); y += size * 1.3; });
-    return wrapped.length;
+    const wrapped = doc.splitTextToSize(t, maxWidth);
+    const lh = leading || size * 1.35;
+    wrapped.forEach(line => { ensure(); doc.text(line, marginX, y); y += lh; });
   }
 
-  // Header — leave room on the right for the photo/avatar circle
-  const AVATAR_R = 28;
-  const avatarX = pageWidth - marginX - AVATAR_R;
-  const avatarY = marginTop + AVATAR_R - 6;
-  const headerTextWidth = maxWidth - (AVATAR_R * 2 + 16);
-
-  text(d.name || '', 20, 'bold', navy, marginX, headerTextWidth);
-  if(d.title) text(d.title, 12, 'bold', blue, marginX, headerTextWidth);
+  // Header — plain text only, no photo/avatar.
+  text(d.name || '', 22, 'bold', navy);
+  if(d.title) text(d.title, 12, 'bold', navy);
   const contactBits = [c.phone, c.email, c.link].filter(Boolean).join('    ');
-  if(contactBits) text(contactBits, 9, 'normal', gray, marginX, headerTextWidth);
+  if(contactBits) text(contactBits, 9.5, 'normal', grey);
 
-  function drawInitialsAvatar(){
-    doc.setFillColor(navy[0], navy[1], navy[2]);
-    doc.circle(avatarX, avatarY, AVATAR_R, 'F');
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(16);
-    doc.setTextColor(255, 255, 255);
-    const initials = cvInitials(d.name);
-    const tw = doc.getTextWidth(initials);
-    doc.text(initials, avatarX - tw / 2, avatarY + 5);
-  }
-  if(photoDataUrl){
-    try{
-      doc.saveGraphicsState();
-      doc.ellipse(avatarX, avatarY, AVATAR_R, AVATAR_R, null);
-      doc.clip();
-      doc.discardPath();
-      doc.addImage(photoDataUrl, 'JPEG', avatarX - AVATAR_R, avatarY - AVATAR_R, AVATAR_R * 2, AVATAR_R * 2);
-      doc.restoreGraphicsState();
-    }catch(e){
-      doc.restoreGraphicsState();
-      drawInitialsAvatar();
-    }
-  } else {
-    drawInitialsAvatar();
-  }
-  y = Math.max(y, avatarY + AVATAR_R + 8);
-
-  y += 8;
-  doc.setDrawColor(227, 231, 236); doc.line(marginX, y, pageWidth - marginX, y); y += 14;
+  y += 6;
+  doc.setDrawColor(217, 220, 225); doc.line(marginX, y, pageWidth - marginX, y); y += 16;
 
   function heading(t){
-    ensure(20);
+    ensure();
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(12);
     doc.setTextColor(navy[0], navy[1], navy[2]);
     const wrapped = doc.splitTextToSize(t, maxWidth);
-    wrapped.forEach(line => { ensure(16); doc.text(line, marginX, y); y += 16; });
+    wrapped.forEach(line => { ensure(); doc.text(line, marginX, y); y += 15; });
+    doc.setDrawColor(217, 220, 225); doc.line(marginX, y - 5, pageWidth - marginX, y - 5);
     y += 4;
   }
+  function sectionGap(){ y += 8; }
 
-  if(d.summary){ heading('Summary'); text(d.summary, 10, 'normal', dark); y += 8; }
+  if(d.summary){ heading('Summary'); text(d.summary, 9.5, 'normal', charcoal, LEADING); sectionGap(); }
 
   if(d.achievements && d.achievements.length){
     heading('Key Achievements');
     d.achievements.forEach(a => {
-      ensure(30);
-      doc.setFillColor(111, 168, 220);
-      doc.circle(marginX + 3, y - 3, 2.2, 'F');
-      text(a.title || '', 10.5, 'bold', blue, marginX + 12, maxWidth - 12);
-      text(a.description || '', 9.5, 'normal', gray, marginX + 12, maxWidth - 12);
-      y += 5;
+      text(a.title || '', 9.5, 'bold', charcoal, LEADING);
+      text(a.description || '', 9.5, 'normal', charcoal, LEADING);
+      y += 4;
     });
-    y += 4;
+    sectionGap();
   }
 
-  function timelineSection(title, items, mapFn){
+  function flowSection(title, items, mapFn){
     if(!items || !items.length) return;
     heading(title);
     items.forEach(item => {
-      const { dateLine, locLine, roleLine, subLine, bullets, resultLine } = mapFn(item);
-      const entryStartY = y;
-      const dateColX = marginX, bodyColX = marginX + 100;
-      const bodyColW = maxWidth - 100;
-      let dY = y;
-      doc.setFont('times', 'bold'); doc.setFontSize(10); doc.setTextColor(...navy);
-      doc.text(dateLine, dateColX, dY); dY += 12;
-      if(locLine){ doc.setFont('times','normal'); doc.setFontSize(8.5); doc.setTextColor(...gray); doc.text(locLine, dateColX, dY); }
+      const { roleLine, subLine, metaLine, bullets, resultLine } = mapFn(item);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(9.5); doc.setTextColor(...charcoal);
+      const headLine = subLine ? `${roleLine} — ${subLine}` : roleLine;
+      const headWrapped = doc.splitTextToSize(headLine, maxWidth);
+      headWrapped.forEach(l => { ensure(); doc.text(l, marginX, y); y += LEADING; });
 
-      let bY = y;
-      doc.setFont('times','bold'); doc.setFontSize(11); doc.setTextColor(...blue);
-      const roleLines = doc.splitTextToSize(roleLine, bodyColW);
-      roleLines.forEach(l => { doc.text(l, bodyColX, bY); bY += 13; });
-      if(subLine){
-        doc.setFont('times','bold'); doc.setFontSize(9.5); doc.setTextColor(...lightBlue);
-        doc.text(subLine, bodyColX, bY); bY += 12;
+      if(metaLine){
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(...grey);
+        const metaWrapped = doc.splitTextToSize(metaLine, maxWidth);
+        metaWrapped.forEach(l => { ensure(); doc.text(l, marginX, y); y += 12; });
       }
       if(resultLine){
-        doc.setFont('times','normal'); doc.setFontSize(9); doc.setTextColor(...gray);
-        const rl = doc.splitTextToSize(resultLine, bodyColW);
-        rl.forEach(l => { doc.text(l, bodyColX, bY); bY += 11; });
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(...grey);
+        const rl = doc.splitTextToSize(resultLine, maxWidth);
+        rl.forEach(l => { ensure(); doc.text(l, marginX, y); y += 12; });
       }
       if(bullets && bullets.length){
-        doc.setFont('times','normal'); doc.setFontSize(9.5); doc.setTextColor(...dark);
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5); doc.setTextColor(...charcoal);
         bullets.forEach(b => {
-          const bl = doc.splitTextToSize(b, bodyColW - 10);
+          const bl = doc.splitTextToSize(b, maxWidth - 12);
           bl.forEach((l, idx) => {
-            if(bY > pageHeight - marginBottom){ doc.addPage(); bY = marginTop; }
-            doc.text((idx === 0 ? '• ' : '  ') + l, bodyColX + 2, bY);
-            bY += 12.5;
+            ensure();
+            doc.text((idx === 0 ? '• ' : '  ') + l, marginX + 2, y);
+            y += LEADING;
           });
         });
       }
-      const entryEndY = Math.max(dY, bY);
-      doc.setDrawColor(227, 231, 236);
-      doc.line(bodyColX - 8, entryStartY - 8, bodyColX - 8, entryEndY - 4);
-      doc.setFillColor(...blue);
-      doc.circle(bodyColX - 8, entryStartY - 6, 2.3, 'F');
-      y = entryEndY + 8;
-      ensure(20);
+      y += 6;
     });
+    sectionGap();
   }
 
-  timelineSection('Experience', d.experience, e => ({
-    dateLine: e.dateRange || '', locLine: e.location || '',
-    roleLine: e.jobTitle || '', subLine: e.company || '', bullets: e.bullets || []
+  flowSection('Experience', d.experience, e => ({
+    roleLine: e.jobTitle || '', subLine: e.company || '',
+    metaLine: [e.dateRange, e.location].filter(Boolean).join(' | '), bullets: e.bullets || []
   }));
-  timelineSection('Education', d.education, e => ({
-    dateLine: e.dateRange || '', locLine: e.location || '',
-    roleLine: e.degree || '', subLine: e.institution || '', resultLine: e.resultLine || ''
+  flowSection('Education', d.education, e => ({
+    roleLine: e.degree || '', subLine: e.institution || '',
+    metaLine: [e.dateRange, e.location].filter(Boolean).join(' | '), resultLine: e.resultLine || ''
   }));
 
   if(d.skills && d.skills.length){
     heading('Skills');
-    let x = marginX;
-    doc.setFont('times','bold'); doc.setFontSize(9.5);
-    d.skills.forEach(s => {
-      const w = doc.getTextWidth(s);
-      if(x + w > pageWidth - marginX){ x = marginX; y += 18; ensure(18); }
-      doc.setTextColor(...dark);
-      doc.text(s, x, y);
-      doc.setDrawColor(220, 227, 234);
-      doc.line(x, y + 3, x + w, y + 3);
-      x += w + 18;
-    });
-    y += 20;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5); doc.setTextColor(...charcoal);
+    const wrapped = doc.splitTextToSize(d.skills.join(', '), maxWidth);
+    wrapped.forEach(l => { ensure(); doc.text(l, marginX, y); y += LEADING; });
+    sectionGap();
   }
 
   if(d.interests && d.interests.length){
     heading('Interests');
-    const colW = maxWidth / 2;
-    d.interests.forEach((it, i) => {
-      const col = i % 2;
-      const x = marginX + col * colW;
-      if(col === 0) ensure(16);
-      doc.setFillColor(...lightBlue);
-      doc.circle(x + 3, y - 3, 2, 'F');
-      doc.setFont('times','bold'); doc.setFontSize(9.5); doc.setTextColor(...blue);
-      doc.text(it, x + 10, y);
-      if(col === 1) y += 16;
-    });
-    if(d.interests.length % 2 === 1) y += 16;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5); doc.setTextColor(...charcoal);
+    const wrapped = doc.splitTextToSize(d.interests.join(', '), maxWidth);
+    wrapped.forEach(l => { ensure(); doc.text(l, marginX, y); y += LEADING; });
   }
 }
 
