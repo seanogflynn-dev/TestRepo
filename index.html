@@ -190,6 +190,7 @@
       <div class="daily-tabs">
         <button class="ghost daily-tab active" id="dailyTabShortlist" data-view="shortlist" type="button">Shortlist</button>
         <button class="ghost daily-tab" id="dailyTabApplications" data-view="applications" type="button">Applications</button>
+        <button class="ghost" id="runSearchBtn" type="button">Run search now</button>
       </div>
     </div>
     <p class="sub" id="dailyStatus">Loading today's roles…</p>
@@ -357,7 +358,22 @@ const dailyShortlistView = $('dailyShortlistView');
 const dailyApplicationsView = $('dailyApplicationsView');
 const dailyTabShortlist = $('dailyTabShortlist');
 const dailyTabApplications = $('dailyTabApplications');
+const runSearchBtn = $('runSearchBtn');
 let dailyRoles = [];
+
+// The job search itself runs inside an authenticated Claude session (it uses
+// web browsing, file generation, and memory tools a static page can't call
+// directly) - this app has no way to fire it without exposing account
+// credentials in public client-side code. Instead, copy a ready-made prompt
+// so it's a one-paste action in any Claude chat.
+runSearchBtn.addEventListener('click', () => {
+  const prompt = 'Fire my "Daily Partner Success job search" Routine now.';
+  navigator.clipboard.writeText(prompt).then(() => {
+    showToast('Copied — paste into a Claude chat to run it now');
+  }).catch(() => {
+    showToast('Could not copy — paste this yourself: ' + prompt);
+  });
+});
 
 function escapeAttr(str){ return escapeHtml(str).replace(/"/g, '&quot;'); }
 
