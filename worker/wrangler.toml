@@ -7,4 +7,4 @@ compatibility_date = "2024-11-01"
 # directory) and replace the id below with the one it prints.
 [[kv_namespaces]]
 binding = "ROLES_KV"
-id = "REPLACE-WITH-YOUR-KV-NAMESPACE-ID"
+id = "40a73b54ba8d4f49b34d0a2a72120752"
