@@ -28,11 +28,24 @@ require a credit card.
    ```
    wrangler secret put GEMINI_API_KEY
    ```
-4. Deploy:
+4. Create the KV namespace used to store the daily job shortlist and your
+   Yes/No/Applied decisions:
+   ```
+   wrangler kv namespace create ROLES_KV
+   ```
+   It prints an `id`. Open `wrangler.toml` and replace
+   `REPLACE-WITH-YOUR-KV-NAMESPACE-ID` with that id.
+5. Set a secret the daily Routine will use to authenticate when it pushes
+   new roles in (pick any long random string — a password generator's
+   output is fine):
+   ```
+   wrangler secret put INGEST_SECRET
+   ```
+6. Deploy:
    ```
    wrangler deploy
    ```
-5. Wrangler prints your Worker's URL, e.g. `https://job-sourcer-proxy.<your-subdomain>.workers.dev`.
+7. Wrangler prints your Worker's URL, e.g. `https://job-sourcer-proxy.<your-subdomain>.workers.dev`.
 
 ## Wire it up to the site
 
@@ -45,8 +58,20 @@ const AI_PROXY_URL = "https://REPLACE-WITH-YOUR-WORKER.workers.dev/v1/messages";
 Replace it with your deployed Worker URL + `/v1/messages`, commit, and push —
 GitHub Pages will pick up the change automatically.
 
+## Roles API (shortlist + application tracker)
+
+- `GET /v1/roles` — returns `{ roles: [...] }`. Called by the app on load to
+  show today's shortlist and the Applications archive.
+- `POST /v1/roles/decision` — body `{ id, status }` where status is one of
+  `pending`/`yes`/`no`/`applied`. Called by the app when you click a
+  decision button; setting `applied` stamps `appliedAt`.
+- `POST /v1/roles/ingest` — body `{ roles: [{ company, role, rationale,
+  link, score }] }`, requires header `X-Ingest-Secret: <INGEST_SECRET>`.
+  Called by the daily job-search Routine after it scores new roles.
+  Duplicate roles (same company + role + link) are silently skipped.
+
 ## Notes
 
 - If you ever host the site from a different origin, update `ALLOWED_ORIGIN` in `worker.js` to match.
-- Cloudflare Workers' free tier (100,000 requests/day) is more than enough for personal use.
+- Cloudflare Workers' free tier (100,000 requests/day) and KV's free tier (1 GB storage, 100,000 reads/day) are both more than enough for personal use.
 - Already have a `ANTHROPIC_API_KEY` secret set from a previous version of this worker? It's unused now and can be left in place or removed with `wrangler secret delete ANTHROPIC_API_KEY`.

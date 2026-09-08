@@ -1,3 +1,10 @@
 name = "job-sourcer-proxy"
 main = "worker.js"
 compatibility_date = "2024-11-01"
+
+# Stores the daily job-search shortlist and your Yes/No/Applied decisions.
+# Create with `wrangler kv namespace create ROLES_KV` (from this worker/
+# directory) and replace the id below with the one it prints.
+[[kv_namespaces]]
+binding = "ROLES_KV"
+id = "REPLACE-WITH-YOUR-KV-NAMESPACE-ID"

@@ -152,6 +152,28 @@
   .shortlist-item .sl-link{font-size:11.5px;color:var(--pine);text-decoration:none;}
   .shortlist-item .sl-link:hover{text-decoration:underline;}
   .shortlist-item button{font-size:12px;padding:6px 13px;}
+
+  .daily-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:4px;}
+  .daily-tabs{display:flex;gap:6px;}
+  .daily-tab{padding:6px 12px;font-size:12px;}
+  .daily-tab.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+
+  .role-card{border:1px solid var(--line);border-radius:2px;padding:12px 14px;margin-bottom:9px;background:#fff;}
+  .role-card.is-yes{border-left:3px solid var(--pine);}
+  .role-card .rc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+  .role-card .rc-title{font-weight:600;font-size:13px;color:var(--ink);margin:0 0 3px;}
+  .role-card .rc-score{font-size:11px;font-weight:600;color:var(--pine);white-space:nowrap;}
+  .role-card .rc-rationale{font-size:12px;color:var(--stone);margin:6px 0 10px;line-height:1.45;}
+  .role-card .rc-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .role-card .rc-link{font-size:11.5px;color:var(--pine);text-decoration:none;margin-right:auto;}
+  .role-card .rc-link:hover{text-decoration:underline;}
+  .role-card button{font-size:11.5px;padding:6px 11px;}
+  .role-card button.rc-active{background:var(--ink);color:#fff;border-color:var(--ink);}
+  .role-card .rc-applied-date{font-size:11.5px;color:var(--stone);}
+
+  .apps-stats{display:flex;gap:18px;flex-wrap:wrap;margin:0 0 14px;padding-bottom:14px;border-bottom:1px solid var(--line);}
+  .apps-stat{font-size:12px;color:var(--stone);}
+  .apps-stat b{display:block;font-size:20px;color:var(--ink);font-weight:700;}
 </style>
 </head>
 <body>
@@ -160,6 +182,19 @@
   <div class="masthead">
     <h1>Job Sourcer</h1>
     <div class="tag">CV bullets &amp; cover letters, matched to the job</div>
+  </div>
+
+  <div class="panel" id="dailyPanel" style="margin-bottom:24px;">
+    <div class="daily-head">
+      <h2 style="margin:0;">Today's roles</h2>
+      <div class="daily-tabs">
+        <button class="ghost daily-tab active" id="dailyTabShortlist" data-view="shortlist" type="button">Shortlist</button>
+        <button class="ghost daily-tab" id="dailyTabApplications" data-view="applications" type="button">Applications</button>
+      </div>
+    </div>
+    <p class="sub" id="dailyStatus">Loading today's roles…</p>
+    <div id="dailyShortlistView"></div>
+    <div id="dailyApplicationsView" style="display:none;"></div>
   </div>
 
   <div class="grid">
@@ -192,7 +227,7 @@
       <h2 style="margin-top:28px;">This application</h2>
       <p class="sub">Paste the job description you're applying to.</p>
 
-      <label for="shortlistInput">Today's shortlist (optional)</label>
+      <label for="shortlistInput">Paste a shortlist manually (optional)</label>
       <textarea id="shortlistInput" class="med" placeholder="Paste what your daily job search (e.g. a Cowork scheduled task) returned — a list of roles with company, rationale, and links."></textarea>
       <div class="row" style="margin-top:10px;">
         <button class="ghost" id="parseShortlistBtn" type="button">Parse shortlist</button>
@@ -260,6 +295,9 @@ const TAB_KEYS = ['letter','cv','fullcv','notes'];
 // Points at the Cloudflare Worker proxy that holds the Gemini API key server-side.
 // See worker/README.md for how to deploy the proxy and fill this in.
 const AI_PROXY_URL = "https://job-sourcer-proxy.seanogflynn.workers.dev/v1/messages";
+const WORKER_BASE = AI_PROXY_URL.replace(/\/v1\/messages$/, '');
+const ROLES_URL = WORKER_BASE + '/v1/roles';
+const ROLES_DECISION_URL = WORKER_BASE + '/v1/roles/decision';
 
 if(window.pdfjsLib){
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.7.570/pdf.worker.min.js';
@@ -312,6 +350,139 @@ baseCv.addEventListener('input', queueSave);
 nameInput.addEventListener('input', queueSave);
 contactInfo.addEventListener('input', queueSave);
 loadProfile();
+
+// ---- Today's Roles (auto-populated by the daily job search Routine) ----
+const dailyStatus = $('dailyStatus');
+const dailyShortlistView = $('dailyShortlistView');
+const dailyApplicationsView = $('dailyApplicationsView');
+const dailyTabShortlist = $('dailyTabShortlist');
+const dailyTabApplications = $('dailyTabApplications');
+let dailyRoles = [];
+
+function escapeAttr(str){ return escapeHtml(str).replace(/"/g, '&quot;'); }
+
+async function loadDailyRoles(){
+  dailyStatus.textContent = 'Loading today\'s roles…';
+  try{
+    const res = await fetch(ROLES_URL);
+    if(!res.ok) throw new Error('Request failed (' + res.status + ')');
+    const data = await res.json();
+    dailyRoles = data.roles || [];
+    renderDailyViews();
+  }catch(err){
+    dailyStatus.textContent = 'Could not load today\'s roles: ' + err.message + ' — has the Worker been redeployed with the roles feature?';
+  }
+}
+
+function renderDailyViews(){
+  const pending = dailyRoles.filter(r => r.status !== 'no' && r.status !== 'applied');
+  const applied = dailyRoles.filter(r => r.status === 'applied')
+    .sort((a, b) => (b.appliedAt || '').localeCompare(a.appliedAt || ''));
+
+  if(pending.length){
+    dailyStatus.textContent = `${pending.length} role${pending.length === 1 ? '' : 's'} to review.`;
+  } else if(dailyRoles.length){
+    dailyStatus.textContent = 'No pending roles right now — check back tomorrow, or view Applications.';
+  } else {
+    dailyStatus.textContent = 'No roles yet. Your daily job search will add roles here automatically each morning.';
+  }
+
+  dailyShortlistView.innerHTML = pending.length ? pending.map(roleCardHtml).join('') : '';
+  dailyShortlistView.querySelectorAll('[data-decide]').forEach(btn => {
+    btn.addEventListener('click', () => decideRole(btn.dataset.decide, btn.dataset.status));
+  });
+  dailyShortlistView.querySelectorAll('[data-use]').forEach(btn => {
+    btn.addEventListener('click', () => useRoleInGenerator(btn.dataset.use));
+  });
+
+  const countSince = (days) => applied.filter(r =>
+    r.appliedAt && (Date.now() - new Date(r.appliedAt).getTime()) <= days * 86400000
+  ).length;
+  const statsHtml = `<div class="apps-stats">
+    <div class="apps-stat"><b>${countSince(7)}</b>Last 7 days</div>
+    <div class="apps-stat"><b>${countSince(30)}</b>Last 30 days</div>
+    <div class="apps-stat"><b>${countSince(90)}</b>Last 90 days</div>
+    <div class="apps-stat"><b>${applied.length}</b>All time</div>
+  </div>`;
+  dailyApplicationsView.innerHTML = statsHtml + (applied.length
+    ? applied.map(appliedCardHtml).join('')
+    : '<p class="sub">Nothing marked as applied yet — use "Mark applied" on a role in the Shortlist tab.</p>');
+}
+
+function roleCardHtml(r){
+  const isYes = r.status === 'yes';
+  return `<div class="role-card${isYes ? ' is-yes' : ''}">
+    <div class="rc-top">
+      <p class="rc-title">${escapeHtml(r.role || '')}${r.company ? ', ' + escapeHtml(r.company) : ''}</p>
+      ${r.score != null ? `<span class="rc-score">${escapeHtml(String(r.score))}/10</span>` : ''}
+    </div>
+    ${r.rationale ? `<p class="rc-rationale">${escapeHtml(r.rationale)}</p>` : ''}
+    <div class="rc-row">
+      ${r.link ? `<a class="rc-link" href="${escapeAttr(r.link)}" target="_blank" rel="noopener">Open listing ↗</a>` : ''}
+      <button class="ghost${r.status === 'yes' ? ' rc-active' : ''}" data-decide="${escapeAttr(r.id)}" data-status="yes" type="button">Yes</button>
+      <button class="ghost${r.status === 'no' ? ' rc-active' : ''}" data-decide="${escapeAttr(r.id)}" data-status="no" type="button">No</button>
+      <button class="primary" data-decide="${escapeAttr(r.id)}" data-status="applied" type="button">Mark applied</button>
+      <button class="ghost" data-use="${escapeAttr(r.id)}" type="button">Use in generator ↓</button>
+    </div>
+  </div>`;
+}
+
+function appliedCardHtml(r){
+  const dateStr = r.appliedAt
+    ? new Date(r.appliedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+    : '';
+  return `<div class="role-card">
+    <div class="rc-top">
+      <p class="rc-title">${escapeHtml(r.role || '')}${r.company ? ', ' + escapeHtml(r.company) : ''}</p>
+      <span class="rc-applied-date">Applied ${escapeHtml(dateStr)}</span>
+    </div>
+    <div class="rc-row">
+      ${r.link ? `<a class="rc-link" href="${escapeAttr(r.link)}" target="_blank" rel="noopener">Open listing ↗</a>` : ''}
+    </div>
+  </div>`;
+}
+
+async function decideRole(id, status){
+  try{
+    const res = await fetch(ROLES_DECISION_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, status })
+    });
+    if(!res.ok) throw new Error('Request failed (' + res.status + ')');
+    const data = await res.json();
+    const idx = dailyRoles.findIndex(r => r.id === id);
+    if(idx !== -1) dailyRoles[idx] = data.role;
+    renderDailyViews();
+    if(status === 'applied') showToast('Marked as applied');
+  }catch(err){
+    showToast('Could not save: ' + err.message);
+  }
+}
+
+function useRoleInGenerator(id){
+  const r = dailyRoles.find(x => x.id === id);
+  if(!r) return;
+  jobTitle.value = `${r.role || ''}${r.company ? ', ' + r.company : ''}`;
+  jobDesc.value = '';
+  jobDesc.placeholder = r.link
+    ? `Paste the full posting for this role — open the link above, or paste the URL to Claude in chat and ask it to pull the description.`
+    : `Paste the full posting for this role.`;
+  jobDesc.focus();
+  jobDesc.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+[dailyTabShortlist, dailyTabApplications].forEach(tab => {
+  tab.addEventListener('click', () => {
+    [dailyTabShortlist, dailyTabApplications].forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const view = tab.dataset.view;
+    dailyShortlistView.style.display = view === 'shortlist' ? 'block' : 'none';
+    dailyApplicationsView.style.display = view === 'applications' ? 'block' : 'none';
+  });
+});
+
+loadDailyRoles();
 
 // ---- CV file upload ----
 async function extractPdfText(arrayBuffer){
@@ -829,10 +1000,18 @@ function renderCvTemplateToPdf(doc, d, pageWidth, pageHeight){
     doc.setTextColor(navy[0], navy[1], navy[2]);
     const wrapped = doc.splitTextToSize(t, maxWidth);
     wrapped.forEach(line => { ensure(); doc.text(line, marginX, y); y += 15; });
-    doc.setDrawColor(217, 220, 225); doc.line(marginX, y - 5, pageWidth - marginX, y - 5);
-    y += 4;
+    y += 5;
   }
-  function sectionGap(){ y += 8; }
+  // Draws the section-boundary rule after a section's content, matching the
+  // on-screen preview's border-bottom-per-section (not directly under the
+  // heading, which looked cramped against both the heading and the body text).
+  function sectionGap(){
+    ensure();
+    y += 4;
+    doc.setDrawColor(217, 220, 225);
+    doc.line(marginX, y, pageWidth - marginX, y);
+    y += 14;
+  }
 
   if(d.summary){ heading('Summary'); text(d.summary, 9.5, 'normal', charcoal, LEADING); sectionGap(); }
 
