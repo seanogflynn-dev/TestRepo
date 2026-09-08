@@ -459,7 +459,7 @@ If the text isn't a job shortlist or contains no identifiable roles, return {"ro
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "gemini-2.5-flash",
+        model: "gemini-flash-latest",
         max_tokens: 1500,
         system: sys,
         messages: [{ role: "user", content: raw }]
@@ -569,7 +569,7 @@ ${jobDesc.value.trim()}`;
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "gemini-2.5-flash",
+        model: "gemini-flash-latest",
         max_tokens: 3800,
         system: sys,
         messages: [{ role: "user", content: userMsg }]

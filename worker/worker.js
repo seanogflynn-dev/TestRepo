@@ -41,7 +41,7 @@ export default {
       );
     }
 
-    const model = clientRequest.model || "gemini-2.5-flash";
+    const model = clientRequest.model || "gemini-flash-latest";
     const userMessage = (clientRequest.messages || []).find((m) => m.role === "user");
 
     const geminiRequest = {
