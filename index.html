@@ -276,9 +276,9 @@ const toast = $('toast');
 const TAB_KEYS = ['letter','cv','fullcv','notes'];
 let photoDataUrl = '';
 
-// Points at the Cloudflare Worker proxy that holds the Anthropic API key server-side.
+// Points at the Cloudflare Worker proxy that holds the Gemini API key server-side.
 // See worker/README.md for how to deploy the proxy and fill this in.
-const ANTHROPIC_PROXY_URL = "https://job-sourcer-proxy.seanogflynn.workers.dev/v1/messages";
+const AI_PROXY_URL = "https://job-sourcer-proxy.seanogflynn.workers.dev/v1/messages";
 
 if(window.pdfjsLib){
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.7.570/pdf.worker.min.js';
@@ -455,11 +455,11 @@ async function parseShortlist(){
     const sys = `Extract a list of job opportunities from freeform text (likely a ranked shortlist from a research assistant). Return ONLY valid JSON (no markdown fences, no preamble) with this exact shape:
 {"roles": [ {"company": "company name", "role": "job title", "rationale": "short reason/score summary for this role, 1-2 sentences", "link": "URL if present, else empty string"} ]}
 If the text isn't a job shortlist or contains no identifiable roles, return {"roles": []}.`;
-    const response = await fetch(ANTHROPIC_PROXY_URL, {
+    const response = await fetch(AI_PROXY_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "claude-sonnet-5",
+        model: "gemini-2.5-flash",
         max_tokens: 1500,
         system: sys,
         messages: [{ role: "user", content: raw }]
@@ -565,11 +565,11 @@ JOB DESCRIPTION:
 ${jobDesc.value.trim()}`;
 
   try{
-    const response = await fetch(ANTHROPIC_PROXY_URL, {
+    const response = await fetch(AI_PROXY_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "claude-sonnet-5",
+        model: "gemini-2.5-flash",
         max_tokens: 3800,
         system: sys,
         messages: [{ role: "user", content: userMsg }]
