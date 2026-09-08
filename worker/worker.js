@@ -41,7 +41,6 @@ export default {
       );
     }
 
-    const model = clientRequest.model || "gemini-flash-latest";
     const userMessage = (clientRequest.messages || []).find((m) => m.role === "user");
 
     const geminiRequest = {
@@ -52,16 +51,28 @@ export default {
       geminiRequest.systemInstruction = { parts: [{ text: clientRequest.system }] };
     }
 
-    const upstream = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${env.GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(geminiRequest),
-      }
-    );
+    // The free tier occasionally returns 503 "model overloaded" on the primary
+    // model. Retry once, then fall back to a second model, before giving up.
+    const modelsToTry = [clientRequest.model || "gemini-flash-latest", "gemini-2.0-flash"];
+    let upstream, upstreamJson;
 
-    const upstreamJson = await upstream.json();
+    for (let i = 0; i < modelsToTry.length; i++) {
+      const model = modelsToTry[i];
+      for (let attempt = 0; attempt < 2; attempt++) {
+        upstream = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${env.GEMINI_API_KEY}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(geminiRequest),
+          }
+        );
+        if (upstream.status !== 503) break;
+        await new Promise((resolve) => setTimeout(resolve, 500 * (attempt + 1)));
+      }
+      upstreamJson = await upstream.json();
+      if (upstream.ok || upstream.status !== 503) break;
+    }
 
     if (!upstream.ok) {
       // Forward Gemini's error as-is so it's visible in the browser's network tab.
