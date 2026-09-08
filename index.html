@@ -299,7 +299,6 @@ const AI_PROXY_URL = "https://job-sourcer-proxy.seanogflynn.workers.dev/v1/messa
 const WORKER_BASE = AI_PROXY_URL.replace(/\/v1\/messages$/, '');
 const ROLES_URL = WORKER_BASE + '/v1/roles';
 const ROLES_DECISION_URL = WORKER_BASE + '/v1/roles/decision';
-const ROLES_SEARCH_NOW_URL = WORKER_BASE + '/v1/roles/search-now';
 
 if(window.pdfjsLib){
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.7.570/pdf.worker.min.js';
@@ -362,33 +361,23 @@ const dailyTabApplications = $('dailyTabApplications');
 const runSearchBtn = $('runSearchBtn');
 let dailyRoles = [];
 
-// Runs a real live web search server-side (Gemini's Google Search grounding,
-// via the Worker) and drops results straight into the tracker below - no
-// need to leave the app. This is lighter than the full scheduled Routine
-// (it can't click-through-verify links or generate CV/cover-letter .docx
-// packs, since those need an agent session's browser/file tools), but it
-// gets real, scored roles into view immediately.
-runSearchBtn.addEventListener('click', async () => {
-  runSearchBtn.disabled = true;
-  runSearchBtn.textContent = 'Searching…';
-  dailyStatus.textContent = 'Searching the web for new roles — this can take up to a minute…';
-  try{
-    const res = await fetch(ROLES_SEARCH_NOW_URL, { method: 'POST' });
-    if(!res.ok){
-      const errBody = await res.json().catch(() => ({}));
-      throw new Error(errBody.error || ('Request failed (' + res.status + ')'));
-    }
-    const data = await res.json();
-    dailyRoles = data.roles || dailyRoles;
-    renderDailyViews();
-    showToast(data.added ? `Found ${data.added} new role${data.added === 1 ? '' : 's'}` : 'No new roles found this time');
-  }catch(err){
-    showToast('Search failed: ' + err.message);
-    dailyStatus.textContent = 'Could not run the search: ' + err.message;
-  }finally{
-    runSearchBtn.disabled = false;
-    runSearchBtn.textContent = 'Run search now';
-  }
+// The job search itself runs inside an authenticated Claude session (real
+// web browsing, link verification, .docx generation, memory file access) -
+// tools a static page can't call directly, and there's no way to trigger it
+// for free from here: the Anthropic API is metered separately from a
+// Claude.ai/Claude Code subscription's included usage, so a webpage button
+// calling it directly would cost money outside any existing plan, and a
+// free substitute (e.g. Gemini's search grounding) is far weaker and
+// quota-limited. So: copy a ready-made prompt to paste into an actual
+// Claude session - that's the only path that's genuinely free (it draws on
+// your plan's usage, same as any chat) and gets real results.
+runSearchBtn.addEventListener('click', () => {
+  const prompt = 'Fire my "Daily Partner Success job search" Routine now.';
+  navigator.clipboard.writeText(prompt).then(() => {
+    showToast('Copied — paste into a Claude Code / Cowork chat (not claude.ai) to run it now');
+  }).catch(() => {
+    showToast('Could not copy — paste this into a Claude Code / Cowork chat yourself: ' + prompt);
+  });
 });
 
 function escapeAttr(str){ return escapeHtml(str).replace(/"/g, '&quot;'); }

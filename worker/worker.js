@@ -34,7 +34,6 @@ export default {
     if (url.pathname === "/v1/roles") return handleGetRoles(request, env);
     if (url.pathname === "/v1/roles/decision") return handleDecision(request, env);
     if (url.pathname === "/v1/roles/ingest") return handleIngest(request, env);
-    if (url.pathname === "/v1/roles/search-now") return handleSearchNow(request, env);
 
     return new Response("Not found", { status: 404, headers: corsHeaders(request) });
   },
@@ -177,86 +176,6 @@ async function handleIngest(request, env) {
 
   await saveRoles(env, roles);
   return jsonResponse(request, { added, total: roles.length });
-}
-
-// ---- POST /v1/roles/search-now — the app's "Run search now" button ----
-// Runs a real, live web search directly from the Worker using Gemini's
-// Google Search grounding tool (still on the free tier), so a browser click
-// can produce real results without needing an authenticated agent session.
-// This is a lighter-weight sibling to the full daily Routine: it can't
-// click through to verify links resolve or generate CV/cover-letter .docx
-// packs (those need real browser/file tools an agent session has), but it
-// finds and scores real roles and drops them straight into the same
-// tracker, so "Run search now" actually shows something in the app.
-async function handleSearchNow(request, env) {
-  if (request.method !== "POST") {
-    return jsonResponse(request, { error: "Method not allowed" }, 405);
-  }
-  if (!env.GEMINI_API_KEY) {
-    return jsonResponse(request, { error: "Server is missing GEMINI_API_KEY" }, 500);
-  }
-
-  const roles = await loadRoles(env);
-  const known = roles.map((r) => `${r.company} — ${r.role}`).join("\n") || "(none yet)";
-
-  const sys = `You are a job search assistant with live web search access. Search major job boards and company career pages (LinkedIn Jobs, Indeed, Lever, Greenhouse, Workable, and individual company career sites) for roles matching: Head of Partner Success, VP/SVP Global Partner Success, Director of Alliances, Partner Ecosystem Lead, Head of Partnerships, or similar senior partner/alliances leadership roles, primarily in enterprise SaaS, ideally EMEA/Dublin-based or EMEA-remote. Prefer a company's own live careers board over aggregator sites, which are often stale.
-
-Skip any role that matches one already known - do not repeat these:
-${known}
-
-Score each new role 1-10 (one overall number, one decimal is fine) reflecting: salary/compensation signal if disclosed or inferable, company growth trajectory (recent funding/revenue growth/market position), how seriously the company invests in AI as part of its product or roadmap, and fit to a candidate with 20+ years in Partner Success/Alliances, EMEA leadership, enterprise SaaS, scaling through M&A.
-
-Return ONLY valid JSON (no markdown fences, no preamble, no commentary before or after) with this exact shape:
-{"roles":[{"company":"...","role":"...","rationale":"1-2 line reason summarizing your score","link":"https://...","score":8.5}]}
-If you find no new qualifying roles, return {"roles":[]}.`;
-
-  const geminiRequest = {
-    contents: [{ role: "user", parts: [{ text: "Find new roles now." }] }],
-    tools: [{ google_search: {} }],
-    systemInstruction: { parts: [{ text: sys }] },
-    generationConfig: { maxOutputTokens: 4096 },
-  };
-
-  const discovered = await getCandidateModels(env.GEMINI_API_KEY);
-  let upstream, upstreamJson;
-  for (const model of discovered) {
-    upstream = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${env.GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(geminiRequest),
-      }
-    );
-    if (upstream.ok) {
-      upstreamJson = await upstream.json();
-      break;
-    }
-    upstreamJson = await upstream.json();
-    // Search grounding isn't supported on every model - move on and try the
-    // next candidate rather than failing outright.
-    if (upstream.status !== 400 && upstream.status !== 404 && upstream.status !== 503) break;
-  }
-
-  if (!upstream.ok) {
-    return jsonResponse(request, { error: "Search failed", detail: upstreamJson }, upstream.status);
-  }
-
-  let text = (upstreamJson.candidates?.[0]?.content?.parts || []).map((p) => p.text || "").join("");
-  text = text.trim().replace(/^```json/i, "").replace(/^```/, "").replace(/```$/, "").trim();
-
-  let parsed;
-  try {
-    parsed = JSON.parse(text);
-  } catch (e) {
-    return jsonResponse(request, { error: "Could not parse search results", raw: text }, 502);
-  }
-
-  const incoming = Array.isArray(parsed.roles) ? parsed.roles : [];
-  const added = await mergeNewRoles(roles, incoming);
-  await saveRoles(env, roles);
-
-  return jsonResponse(request, { added, total: roles.length, roles });
 }
 
 // ---- POST /v1/messages — Gemini proxy (unchanged behavior) ----
